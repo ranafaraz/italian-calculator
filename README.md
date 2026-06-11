@@ -1,68 +1,81 @@
-# CalcFlow — Italian-first Calculator App
+# CalcFlow
 
-CalcFlow is an Italian-first, privacy-first, offline-capable cross-platform calculator app planned for Flutter.
+CalcFlow is an Italian-first, privacy-first, fully offline calculator built with Flutter. Italian is the default language; English can be selected in Settings. All data stays on the device — no backend, no accounts, no ads.
 
-The product goal is to build a fast, clean, premium-feeling calculator for daily calculations, scientific calculations, Italian IVA workflows, discount calculation, unit conversion, searchable local history, and Italian/English localization.
+## Features
 
-## Current Repository Status
+### Calculator
+- Live result preview while you type (commit with `=`)
+- Smart parenthesis key, sign toggle (±), cursor-aware editing
+- Percentages with calculator convention: `100 − 25% = 75`, `200 × 10% = 20`
+- Scientific panel: sin/cos/tan (+ inverse via INV), ln/log (+ eˣ/10ˣ), √, x!, xʸ, π, e, Ans
+- DEG/RAD angle modes, implicit multiplication (`2π`, `3(4+1)`), auto-closing parentheses
+- Locale-aware numbers: `1.234,56` in Italian, `1,234.56` in English; comma decimal input
+- Hardware keyboard support, haptic feedback, friendly localized errors
 
-This repository currently contains the planning package for Codex implementation.
+### History
+- Persistent local history with search, pin, swipe-to-delete with undo
+- Grouped by day (Today / Yesterday / date), tap to reuse, copy results
 
-## Planning Documents
+### Italian finance tools
+- IVA: add VAT (netto → lordo) and scorporo (lordo → netto) with rates 4/5/10/22% or custom
+- Discount calculator with quick percentages and "you save" breakdown
+- Euro formatting per locale
 
-- [`docs/PRD.md`](docs/PRD.md) — product requirements
-- [`docs/ACCEPTANCE_CRITERIA.md`](docs/ACCEPTANCE_CRITERIA.md) — MVP definition of done
-- [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) — test plan and manual QA checklist
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — recommended Flutter architecture
-- [`docs/CODEX_PROMPT.md`](docs/CODEX_PROMPT.md) — prompt to execute in Codex
+### Unit converter
+- 8 categories: length, weight, temperature, area, volume, data, speed, time
+- Bidirectional editing (type in either field), instant swap, equivalence hint
 
-## MVP Scope
+### Settings
+- Theme: system / light / dark
+- Language: Italiano / English (Italian default)
+- Decimal precision (0–10), haptic feedback toggle
+- Clear all local data
 
-The MVP should include:
+## Design
 
-- Basic calculator
-- Scientific calculator
-- Local searchable history
-- Italian IVA calculator
-- Discount calculator
-- Offline unit converter
-- Italian default language
-- English language switch
-- Light/dark mode
-- Decimal precision setting
-- Local-only storage
+Custom "Tricolore Premium" design system: neutral slate surfaces, emerald accent, warm amber operators, coral for destructive actions. Bundled Inter (UI) and Space Grotesk (numerals) fonts — no runtime font downloads, fully offline.
 
-## MVP Non-Goals
+## Setup
 
-Do not implement these in MVP:
+```bash
+flutter pub get
+```
 
-- AI
-- OCR/photo math
-- Login
-- Backend
-- Cloud sync
-- Ads
-- Payments/subscriptions
-- Graphing
+## Run
 
-## Recommended Stack
+```bash
+flutter run                 # any connected device
+flutter run -d chrome       # web (desktop testing)
+flutter build apk --debug   # Android APK → build/app/outputs/flutter-apk/
+```
 
-- Flutter stable
-- Dart
-- Riverpod or Bloc
-- Drift/SQLite or Hive for local storage
-- Flutter localization / ARB files
-- Unit and widget tests
-
-## Required Quality Gates
-
-Codex/developer should not mark the MVP complete unless these pass:
+## Test
 
 ```bash
 flutter analyze
 flutter test
 ```
 
-## Codex Start Point
+## Architecture
 
-Open `docs/CODEX_PROMPT.md`, copy the implementation prompt, and run it in Codex.
+Feature-based structure; domain logic separated from UI and unit-tested. Riverpod for state, `shared_preferences` for local persistence, `flutter gen-l10n` for it/en localization.
+
+```text
+lib/
+  app/            # MaterialApp, theme, design tokens (CalcColors)
+  core/           # number formatting, haptics, storage
+  features/
+    calculator/   # engine (parser/evaluator), controller, screen
+    history/      # repository, controller, bottom sheet
+    finance/      # IVA + discount domain and screen
+    converter/    # unit definitions and bidirectional screen
+    settings/     # preferences state and screen
+  l10n/           # app_it.arb (template), app_en.arb
+  shared/         # app shell, shared widgets
+test/
+```
+
+## Known non-goals
+
+No AI, OCR, backend, login, cloud sync, ads, subscriptions, graphing, or social sharing.
